@@ -44,7 +44,6 @@ def load_data():
 
 df = load_data()
 
-
 # ======================
 # 🎛️ 사이드바
 # ======================
@@ -246,37 +245,72 @@ st.markdown("---")
 # =============================
 # 🏪 군집 비교 인사이트
 # =============================
-st.subheader("  군집별 위험 비교 인사이트")
+st.subheader("🏪 군집별 위험 비교 인사이트")
 
+# 군집 ID (현재 점포)
 cluster_id = int(latest["cluster"])
-avg_cluster = df.groupby("cluster")[["종합위험지수"] + risk_cols].mean().reset_index()
+
+# 군집별 평균 위험지수 계산
+avg_cluster = (
+    df.groupby("cluster")[["종합위험지수"] + risk_cols]
+    .mean()
+    .reset_index()
+    .sort_values("cluster")
+)
 
 col1, col2 = st.columns([1.5, 1])
 
 with col1:
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.bar(avg_cluster["cluster"], avg_cluster["종합위험지수"], color='#6baed6', alpha=0.7)
-    ax.axhline(latest["종합위험지수"], color='red', linestyle='--', label='내 점포')
+
+    # ✅ 막대그래프: x축 0, 1, 2
+    bars = ax.bar(
+        avg_cluster["cluster"].astype(int),
+        avg_cluster["종합위험지수"],
+        color="#6baed6",
+        alpha=0.8
+    )
+
+    # 내 점포 기준선
+    ax.axhline(latest["종합위험지수"], color="red", linestyle="--", label="내 점포", linewidth=1.5)
     ax.legend()
-    ax.set_title("군집별 평균 위험지수 비교", fontsize=12)
+
+    # ✅ x축 레이블 설정
+    ax.set_xticks([0, 1, 2])
+    ax.set_xticklabels(["군집 0", "군집 1", "군집 2"])
+    ax.set_title("군집별 평균 위험지수 비교", fontsize=13)
     ax.set_xlabel("군집 번호")
     ax.set_ylabel("평균 위험지수")
+
+    # ✅ 막대 위에 수치 표시
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, yval + 0.01, f"{yval:.2f}",
+                ha="center", va="bottom", fontsize=7)
+
     st.pyplot(fig)
 
 with col2:
-    st.markdown(f"### 📍 현재 매장은 **군집 {cluster_id}** 에 속해 있습니다.")
+    st.markdown(f"#### 📍 현재 매장은 **군집 {cluster_id}** 에 속해 있습니다.")
+
+    # ✅ 군집 번호를 정수로 포맷팅해서 표시
+    df_display = avg_cluster.copy()
+    df_display["cluster"] = df_display["cluster"].astype(int)
+
     st.dataframe(
-        avg_cluster.style.format("{:.2f}").highlight_max(color="#fdd49e", axis=0),
-        use_container_width=True  # ✅ 표 잘림 방지
+        df_display.style.format("{:.2f}").highlight_max(color="#ffb048", axis=0),
+        use_container_width=True
     )
+
     st.markdown("""
     **군집 해석 예시**
-    - 군집 0️⃣ : 안정형 (고객 유지율 높음)
-    - 군집 1️⃣ : 매출 민감형 (매출 변동성 큼)
-    - 군집 2️⃣ : 단골 감소형 (재방문율 낮음)
+    - **군집 0️⃣** : 민감형 (2030 중심, 재방문 낮음)
+    - **군집 1️⃣** : 안정형 (4060 중심, 재방문 높음)
+    - **군집 2️⃣** : 신규오픈형 (전연령 신규 고객 중심)
     """)
 
 st.markdown("---")
+
 
 
 # ======================
@@ -389,11 +423,34 @@ elif color == "info":
 else:
     st.success(summary)
 
-# ✍️ 액션 제안 블록 (줄바꿈 적용)
+# # ✍️ 액션 제안 블록 (줄바꿈 적용)
+# st.markdown(
+#     f"""
+#     <div style='padding:15px 20px; border-left:5px solid #4B9CD3; background-color:#f8faff; border-radius:6px;'>
+#         <p style='font-size:16px; line-height:1.7; font-family:Inter, sans-serif;'>
+#         <b>💡 추천 대응 전략</b><br><br>
+#         {'<br>'.join(action.split('\n'))}
+#         </p>
+#     </div>
+#     """,
+#     unsafe_allow_html=True
+# )
+# ✍️ 액션 제안 블록 (줄바꿈 적용 + 다크모드 대응)
 st.markdown(
     f"""
-    <div style='padding:15px 20px; border-left:5px solid #4B9CD3; background-color:#f8faff; border-radius:6px;'>
-        <p style='font-size:16px; line-height:1.7; font-family:Inter, sans-serif;'>
+    <div style='
+        padding:15px 20px;
+        border-left:5px solid #4B9CD3;
+        background-color:rgba(248,250,255,0.05);
+        border-radius:6px;
+        color:inherit;  /* ✅ 다크모드 글씨 유지 */
+        '>
+        <p style='
+            font-size:16px;
+            line-height:1.7;
+            font-family:Inter, sans-serif;
+            color:inherit;
+        '>
         <b>💡 추천 대응 전략</b><br><br>
         {'<br>'.join(action.split('\n'))}
         </p>
@@ -401,7 +458,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 
 # 📊 하단 구분선 및 카피라이트
