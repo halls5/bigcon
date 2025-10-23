@@ -2,12 +2,21 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 
-# 한글 폰트 설정
-plt.rcParams['font.family'] = 'NotoSansKR'
-plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
+# # 한글 폰트 설정
+# plt.rcParams['font.family'] = 'Noto Sans KR'
+# plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
-pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
+
+# 🔤 폰트 경로 지정
+font_path = "./NotoSansKR-Regular.ttf"
+
+# 🔤 Matplotlib에 등록
+fontprop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = fontprop.get_name()
+plt.rcParams['axes.unicode_minus'] = False
 # =============================
 # 🎛️ 화면 기본 설정
 # =============================
