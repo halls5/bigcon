@@ -16,6 +16,7 @@ font_path = os.path.join(os.path.dirname(__file__), "NotoSansKR-Regular.ttf")
 
 if os.path.exists(font_path):
     fontprop = fm.FontProperties(fname=font_path)
+    fm.fontManager.addfont(font_path)
     plt.rcParams['font.family'] = fontprop.get_name()
     plt.rcParams['axes.unicode_minus'] = False
     print(f"✅ 폰트 적용 완료: {fontprop.get_name()}")
