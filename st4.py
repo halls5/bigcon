@@ -4,27 +4,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import matplotlib
+import os
 
 # # 한글 폰트 설정
 # plt.rcParams['font.family'] = 'Noto Sans KR'
 # plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
 # pd.set_option('display.max_columns', None)
-matplotlib.font_manager._rebuild()
-
-
-import os
-
-# 현재 경로에서 폰트 파일 확인
+# ✅ 폰트 경로 지정 (현재 디렉터리 기준)
 font_path = os.path.join(os.path.dirname(__file__), "NotoSansKR-Regular.ttf")
-if not os.path.exists(font_path):
-    print("⚠️ 폰트 파일을 찾을 수 없습니다:", font_path)
-else:
-    # Matplotlib에 직접 등록
+
+if os.path.exists(font_path):
     fontprop = fm.FontProperties(fname=font_path)
     plt.rcParams['font.family'] = fontprop.get_name()
     plt.rcParams['axes.unicode_minus'] = False
     print(f"✅ 폰트 적용 완료: {fontprop.get_name()}")
+else:
+    print("⚠️ 폰트 파일을 찾을 수 없습니다. 기본 폰트로 진행합니다.")
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['axes.unicode_minus'] = False
 
 # =============================
 # 🎛️ 화면 기본 설정
