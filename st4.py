@@ -272,8 +272,21 @@ with col1:
     )
 
     # 내 점포 기준선
-    ax.axhline(latest["종합위험지수"], color="red", linestyle="--", label="내 점포", linewidth=1.5)
+    my_score = latest["종합위험지수"]
+    ax.axhline(my_score, color="red", linestyle="--", label="내 점포", linewidth=1.5)
     ax.legend()
+
+        # ✅ 점선 오른쪽에 점수 표시
+    xmax = avg_cluster["cluster"].max() + 0.2
+    ax.text(
+        xmax, my_score + 0.01,
+        f"내 점포 {my_score:.2f}  ",
+        color="red",
+        fontsize=8,
+        fontweight="bold",
+        va="bottom",
+        ha="left"
+    )
 
     # ✅ x축 레이블 설정
     ax.set_xticks([0, 1, 2])
@@ -297,8 +310,11 @@ with col2:
     df_display = avg_cluster.copy()
     df_display["cluster"] = df_display["cluster"].astype(int)
 
+    # ✅ 표시용 데이터프레임 (cluster 컬럼 제외)
+    df_display_show = df_display.drop(columns=["cluster"])
+
     st.dataframe(
-        df_display.style.format("{:.2f}").highlight_max(color="#ffb048", axis=0),
+        df_display_show.style.format("{:.2f}").highlight_max(color="#ffb048", axis=0),
         use_container_width=True
     )
 
